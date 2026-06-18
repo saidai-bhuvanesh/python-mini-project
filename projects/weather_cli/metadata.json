@@ -1,9 +1,0 @@
-{
-  "name": "weather_cli",
-  "description": "CLI utility to fetch mock weather details by city name.",
-  "author": "Bob",
-  "difficulty": "Intermediate",
-  "tags": ["weather", "api", "cli"],
-  "dependencies": ["requests"],
-  "entry_point": "main.py"
-}
