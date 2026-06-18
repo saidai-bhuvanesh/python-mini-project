@@ -1,0 +1,33 @@
+{
+  "calculator": {
+    "name": "calculator",
+    "health_score": 100,
+    "status": "Healthy",
+    "issues": [],
+    "imports": [
+      "sys"
+    ]
+  },
+  "unsupported_project": {
+    "name": "unsupported_project",
+    "health_score": 0,
+    "status": "Broken",
+    "issues": [
+      "Missing metadata.json",
+      "Missing README.md",
+      "Missing tests/ directory",
+      "Syntax error in main.py: SyntaxError on line 2: expected ':'"
+    ],
+    "imports": []
+  },
+  "weather_cli": {
+    "name": "weather_cli",
+    "health_score": 100,
+    "status": "Healthy",
+    "issues": [],
+    "imports": [
+      "requests",
+      "sys"
+    ]
+  }
+}

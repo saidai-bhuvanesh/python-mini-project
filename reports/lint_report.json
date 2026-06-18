@@ -1,0 +1,26 @@
+{
+  "calculator": {
+    "score": 50.0,
+    "grade": "D",
+    "violations": [
+      "main.py: Function 'add' (line 3) is missing a docstring",
+      "main.py: Function 'subtract' (line 6) is missing a docstring",
+      "main.py: Function 'multiply' (line 9) is missing a docstring",
+      "main.py: Function 'divide' (line 12) is missing a docstring",
+      "main.py: Function 'main' (line 17) is missing a docstring"
+    ]
+  },
+  "unsupported_project": {
+    "score": 100,
+    "grade": "A",
+    "violations": []
+  },
+  "weather_cli": {
+    "score": 80.0,
+    "grade": "B",
+    "violations": [
+      "main.py: Function 'get_weather' (line 4) is missing a docstring",
+      "main.py: Function 'main' (line 20) is missing a docstring"
+    ]
+  }
+}
