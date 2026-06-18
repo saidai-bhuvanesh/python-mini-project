@@ -1,0 +1,17 @@
+{
+  "calculator": {
+    "security_score": 100,
+    "severity": "Secure",
+    "vulnerabilities": []
+  },
+  "unsupported_project": {
+    "security_score": 100,
+    "severity": "Secure",
+    "vulnerabilities": []
+  },
+  "weather_cli": {
+    "security_score": 100,
+    "severity": "Secure",
+    "vulnerabilities": []
+  }
+}

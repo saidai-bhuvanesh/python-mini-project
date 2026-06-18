@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Mini Project Hub 2.0</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="logo-glow"></div>
+                <i class="fa-brands fa-python python-logo"></i>
+                <h2>Hub <span>2.0</span></h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" data-target="dashboard-section">
+                    <i class="fa-solid fa-chart-pie"></i> Dashboard
+                </a>
+                <a href="#" class="nav-item" data-target="projects-section">
+                    <i class="fa-solid fa-folder-open"></i> Projects
+                </a>
+                <a href="#" class="nav-item" data-target="learning-section">
+                    <i class="fa-solid fa-graduation-cap"></i> Learning Paths
+                </a>
+                <a href="#" class="nav-item" data-target="sandbox-section">
+                    <i class="fa-solid fa-terminal"></i> Sandbox
+                </a>
+                <a href="#" class="nav-item" data-target="contributors-section">
+                    <i class="fa-solid fa-users"></i> Contributors
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="theme-toggle-btn" class="theme-btn">
+                    <i class="fa-solid fa-moon"></i> <span>Dark Mode</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="main-header">
+                <div class="header-search">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="global-search" placeholder="Search projects by keyword, tag, or technology...">
+                </div>
+                <div class="header-actions">
+                    <div class="scan-status">
+                        <span class="status-indicator online"></span>
+                        <span id="scan-status-text">System Synced</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Section -->
+            <section id="dashboard-section" class="content-section active">
+                <div class="welcome-banner">
+                    <div class="banner-content">
+                        <h1>Discover, Learn, & Execute Python</h1>
+                        <p>A unified development environment and learning platform mapping community Python scripts to educational journeys.</p>
+                        <button class="btn btn-primary" onclick="showSection('projects-section')">Browse Projects</button>
+                    </div>
+                    <div class="banner-graphic">
+                        <i class="fa-brands fa-python python-bg-icon"></i>
+                    </div>
+                </div>
+
+                <!-- Stats Dashboard Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon bg-blue"><i class="fa-solid fa-cubes"></i></div>
+                        <div class="stat-info">
+                            <h3 id="stat-total-projects">-</h3>
+                            <p>Total Projects</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon bg-green"><i class="fa-solid fa-square-check"></i></div>
+                        <div class="stat-info">
+                            <h3 id="stat-passing-tests">-</h3>
+                            <p>Test Pass Rate</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon bg-yellow"><i class="fa-solid fa-shield-halved"></i></div>
+                        <div class="stat-info">
+                            <h3 id="stat-security-score">-</h3>
+                            <p>Security Rating</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon bg-purple"><i class="fa-solid fa-code-fork"></i></div>
+                        <div class="stat-info">
+                            <h3 id="stat-contributors">-</h3>
+                            <p>Contributors</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Split Layout -->
+                <div class="split-layout">
+                    <!-- Project Recommendations Quiz -->
+                    <div class="panel recommendation-panel">
+                        <div class="panel-header">
+                            <h2><i class="fa-solid fa-wand-magic-sparkles"></i> Personalized Recommendations</h2>
+                            <p>Find the best projects matching your skills</p>
+                        </div>
+                        <div class="panel-body">
+                            <div id="recs-quiz">
+                                <p class="quiz-question">What is your current Python level?</p>
+                                <div class="difficulty-select">
+                                    <button class="diff-btn active" data-level="Beginner">Beginner</button>
+                                    <button class="diff-btn" data-level="Intermediate">Intermediate</button>
+                                    <button class="diff-btn" data-level="Advanced">Advanced</button>
+                                </div>
+                                <p class="quiz-question" style="margin-top: 15px;">Select your interests:</p>
+                                <div class="tags-select" id="quiz-tags-container">
+                                    <!-- Populated by JS -->
+                                </div>
+                                <button class="btn btn-secondary w-100" id="run-recs-btn" style="margin-top: 20px;">Generate Recommendations</button>
+                            </div>
+                            <div id="recs-results" class="hidden">
+                                <div class="results-header">
+                                    <h3>Suggested Projects</h3>
+                                    <button class="btn-text" id="reset-recs-btn"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+                                </div>
+                                <div class="recs-list" id="recs-list-container">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Repository Insights -->
+                    <div class="panel insights-panel">
+                        <div class="panel-header">
+                            <h2><i class="fa-solid fa-chart-line"></i> Repository Health Overview</h2>
+                            <p>Global analysis diagnostics and lint scores</p>
+                        </div>
+                        <div class="panel-body">
+                            <div class="insights-list">
+                                <div class="insight-row">
+                                    <span class="label">Code Standards Quality</span>
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar bg-blue" style="width: 92%"></div>
+                                    </div>
+                                    <span class="value">92%</span>
+                                </div>
+                                <div class="insight-row">
+                                    <span class="label">Test Coverage</span>
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar bg-green" style="width: 84%"></div>
+                                    </div>
+                                    <span class="value" id="insight-coverage">84%</span>
+                                </div>
+                                <div class="insight-row">
+                                    <span class="label">Broken Projects Rate</span>
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar bg-red" id="insight-broken-bar" style="width: 0%"></div>
+                                    </div>
+                                    <span class="value" id="insight-broken-val">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Projects Section -->
+            <section id="projects-section" class="content-section">
+                <div class="section-title-bar">
+                    <div>
+                        <h1>Repository Projects</h1>
+                        <p>Explore source code files, dependencies, code quality grades, and testing metrics.</p>
+                    </div>
+                    <div class="filter-controls">
+                        <select id="filter-difficulty">
+                            <option value="">All Difficulties</option>
+                            <option value="Beginner">Beginner</option>
+                            <option value="Intermediate">Intermediate</option>
+                            <option value="Advanced">Advanced</option>
+                        </select>
+                        <select id="filter-status">
+                            <option value="">All Health Statuses</option>
+                            <option value="Healthy">Healthy</option>
+                            <option value="Warning">Warning</option>
+                            <option value="Broken">Broken</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Projects Deck Grid -->
+                <div class="projects-grid" id="projects-deck">
+                    <!-- Populated dynamically by app.js -->
+                </div>
+            </section>
+
+            <!-- Learning Paths Section -->
+            <section id="learning-section" class="content-section">
+                <div class="section-title-bar">
+                    <div>
+                        <h1>Learning Progression Roadmaps</h1>
+                        <p>Sequenced Directed Acyclic Graphs (DAG) mapping educational progressions from foundational basics to advanced scripts.</p>
+                    </div>
+                </div>
+                <div class="learning-container">
+                    <div class="track-selector" id="learning-track-buttons">
+                        <!-- Populated by JS -->
+                    </div>
+                    <div class="roadmap-canvas" id="roadmap-canvas-container">
+                        <!-- Flow chart visualization will render here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sandbox Execution Section -->
+            <section id="sandbox-section" class="content-section">
+                <div class="section-title-bar">
+                    <div>
+                        <h1>Isolated Code Sandbox</h1>
+                        <p>Execute Python scripts securely in a isolated subprocess container monitoring standard logs, runtime execution, and timeouts.</p>
+                    </div>
+                </div>
+                <div class="sandbox-split">
+                    <div class="sandbox-config panel">
+                        <div class="panel-header">
+                            <h2>Configure Runtime</h2>
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label for="sandbox-project-select">Select Project</label>
+                                <select id="sandbox-project-select" class="form-control">
+                                    <!-- Populated by JS -->
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-top: 15px;">
+                                <label for="sandbox-args">Execution Arguments (optional)</label>
+                                <input type="text" id="sandbox-args" class="form-control" placeholder="e.g. NewYork London">
+                            </div>
+                            <div class="form-group" style="margin-top: 15px;">
+                                <label for="sandbox-timeout">Runtime Timeout limit</label>
+                                <select id="sandbox-timeout" class="form-control">
+                                    <option value="3">3 Seconds (Recommended)</option>
+                                    <option value="5">5 Seconds</option>
+                                    <option value="1">1 Second</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary w-100" id="sandbox-run-btn" style="margin-top: 25px;">
+                                <i class="fa-solid fa-play"></i> Trigger Sandboxed Run
+                            </button>
+                        </div>
+                    </div>
+                    <div class="sandbox-terminal panel">
+                        <div class="panel-header">
+                            <h2>Terminal Output Console</h2>
+                        </div>
+                        <div class="terminal-body" id="sandbox-terminal-output">
+                            <span class="term-line prompt">system@hub_sandbox:~$</span> Ready to launch Python sub-processes. Select a script and run.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Contributors Section -->
+            <section id="contributors-section" class="content-section">
+                <div class="section-title-bar">
+                    <div>
+                        <h1>Contributor Ecosystem</h1>
+                        <p>Honoring the developers and maintainers making contributions to the project repository.</p>
+                    </div>
+                </div>
+                <div class="contributors-layout">
+                    <div class="leaderboard-table panel">
+                        <div class="panel-header">
+                            <h2>Developer Leaderboard</h2>
+                        </div>
+                        <div class="panel-body">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Developer</th>
+                                        <th>Commits</th>
+                                        <th>Projects</th>
+                                        <th>Score Contribution</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="contributors-table-body">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal for Project Details & Code Viewer -->
+    <div id="project-detail-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-header-section">
+                <h1 id="modal-project-title">Project Detail</h1>
+                <div class="modal-badges" id="modal-project-badges"></div>
+            </div>
+            <div class="modal-body-layout">
+                <div class="modal-info-panel">
+                    <h3>Description</h3>
+                    <p id="modal-project-desc">Project description goes here...</p>
+                    
+                    <h3 style="margin-top: 15px;">Details</h3>
+                    <ul class="detail-list">
+                        <li><strong>Author:</strong> <span id="modal-project-author">-</span></li>
+                        <li><strong>Main Entry:</strong> <code id="modal-project-entry">-</code></li>
+                    </ul>
+
+                    <h3 style="margin-top: 15px;">Required Packages</h3>
+                    <div class="tags-container" id="modal-project-deps"></div>
+                </div>
+                <div class="modal-health-panel">
+                    <h3>Diagnostics Report</h3>
+                    <div class="health-gauge">
+                        <span class="health-number" id="modal-health-score">100</span>
+                        <span class="health-label">Health Score</span>
+                    </div>
+                    <ul class="health-issues" id="modal-health-issues">
+                        <!-- Issues list -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Custom JS -->
+    <script src="src/app.js"></script>
+</body>
+</html>

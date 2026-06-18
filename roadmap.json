@@ -1,0 +1,789 @@
+[
+  {
+    "num": 1,
+    "name": "repository_structure_standardization",
+    "title": "Repository Structure Standardization",
+    "objective": "Standardize folder naming, project layout, README format, and contribution structure across the repository.",
+    "deliverables": [
+      "Folder structure validation rules",
+      "Naming convention guidelines for projects",
+      "Standardized README template",
+      "Project metadata json schema specification"
+    ],
+    "problem_statement": "As the repository grows, contributors add projects with inconsistent directories, missing documentation, and custom layouts. This makes automatic scanning, testing, and discovery difficult. We need a strict standard for project layouts and naming.",
+    "implementation_plan": [
+      "Define the standardized folder layout (e.g., standard folders for source, tests, assets).",
+      "Create a schema for `metadata.json` that every project must include.",
+      "Write a lint-like validation configuration to enforce these rules.",
+      "Draft a README template with required sections (Introduction, Installation, Usage, Tests)."
+    ],
+    "folder_structure": "python-mini-project/\n\u251c\u2500\u2500 .github/\n\u2502   \u2514\u2500\u2500 workflows/\n\u2502       \u2514\u2500\u2500 structure_linter.yml\n\u251c\u2500\u2500 standards/\n\u2502   \u251c\u2500\u2500 project_schema.json\n\u2502   \u251c\u2500\u2500 README_TEMPLATE.md\n\u2502   \u2514\u2500\u2500 structure_rules.md\n\u2514\u2500\u2500 projects/\n    \u2514\u2500\u2500 example_project/\n        \u251c\u2500\u2500 metadata.json\n        \u251c\u2500\u2500 README.md\n        \u251c\u2500\u2500 main.py\n        \u2514\u2500\u2500 tests/\n            \u2514\u2500\u2500 test_main.py",
+    "files_to_create": [
+      {
+        "path": "standards/project_schema.json",
+        "description": "JSON Schema definition for project metadata (metadata.json).",
+        "code": "{\n  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n  \"title\": \"ProjectMetadata\",\n  \"type\": \"object\",\n  \"properties\": {\n    \"name\": { \"type\": \"string\" },\n    \"description\": { \"type\": \"string\" },\n    \"author\": { \"type\": \"string\" },\n    \"difficulty\": { \"type\": \"string\", \"enum\": [\"Beginner\", \"Intermediate\", \"Advanced\"] },\n    \"tags\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n    \"dependencies\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } }\n  },\n  \"required\": [\"name\", \"description\", \"difficulty\", \"tags\"]\n}"
+      },
+      {
+        "path": "standards/README_TEMPLATE.md",
+        "description": "Standard README template to be used by all sub-projects.",
+        "code": "# Project Name\n\nBrief description of the project.\n\n## Setup Instructions\n1. Install dependencies: `pip install -r requirements.txt`\n2. Run the project: `python main.py`\n\n## Running Tests\nRun tests using `pytest`"
+      }
+    ],
+    "acceptance_criteria": [
+      "All new projects must match the standards folder layout.",
+      "Projects must contain a valid `metadata.json` matching the standard JSON Schema.",
+      "Projects must contain a `README.md` based on the standard template."
+    ],
+    "unit_tests": [
+      "Verify that a project with a valid structure and metadata passes validation.",
+      "Verify that a project with a missing `metadata.json` or invalid fields fails validation.",
+      "Verify that folders with non-standard names are flagged."
+    ],
+    "pr_title": "feat: Establish repository standards and templates",
+    "pr_description": "This PR introduces standardized repository rules, a schema for project metadata, a standardized README template, and a workflow specification to validate them. This acts as the baseline for Phase 2 automation.",
+    "reviewer_update_comment": "Hi team, the repository structures and standards have been established. Please review the schema in `standards/project_schema.json` and the folder structures."
+  },
+  {
+    "num": 2,
+    "name": "project_registry_automation",
+    "title": "Project Registry Automation",
+    "objective": "Automatically detect and register projects into projects_registry.json.",
+    "deliverables": [
+      "Automatic registry generator script",
+      "Project metadata extractor tool",
+      "Project validation engine"
+    ],
+    "problem_statement": "Manually updating a central list of projects is prone to human error and easily goes out of sync. We need a script that scans the repository, validates each project's structure, extracts metadata, and updates a central registry dynamically.",
+    "implementation_plan": [
+      "Write a Python script `scripts/register_projects.py` that crawls `projects/`.",
+      "Implement a validator using `jsonschema` to validate each project's `metadata.json` against Phase 1's schema.",
+      "Compile all valid projects into a single `projects_registry.json` at the root.",
+      "Set up a CLI option to dry-run validation and fail with non-zero code on violation."
+    ],
+    "folder_structure": "python-mini-project/\n\u251c\u2500\u2500 scripts/\n\u2502   \u251c\u2500\u2500 register_projects.py\n\u2502   \u2514\u2500\u2500 test_register_projects.py\n\u251c\u2500\u2500 projects_registry.json\n\u2514\u2500\u2500 standards/\n    \u2514\u2500\u2500 project_schema.json",
+    "files_to_create": [
+      {
+        "path": "scripts/register_projects.py",
+        "description": "Python script to scan projects, validate metadata, and generate registry.",
+        "code": "import os\nimport json\n# Automation registry generator logic goes here..."
+      }
+    ],
+    "acceptance_criteria": [
+      "Registry generator scans all folders under `projects/`.",
+      "Invalid projects are flagged and cause a non-zero exit code during CI dry-run.",
+      "Valid projects are successfully outputted to `projects_registry.json` at the root."
+    ],
+    "unit_tests": [
+      "Test metadata extraction for valid schema layouts.",
+      "Test registry generator error raising on invalid JSON schema properties.",
+      "Verify registry output updates existing list without deleting active valid projects."
+    ],
+    "pr_title": "feat: Automate project detection and central registry generation",
+    "pr_description": "Introduces `register_projects.py` which scans the repository, validates project schemas, and writes results to a master registry. This automated registry is critical for downstream dashboarding.",
+    "reviewer_update_comment": "I have created the validation engine and generator. Please verify the registry layout in `projects_registry.json`."
+  },
+  {
+    "num": 3,
+    "name": "repository_health_dashboard",
+    "title": "Repository Health Dashboard",
+    "objective": "Create dashboard showing project count, test status, contributors, and coverage.",
+    "deliverables": [
+      "Dashboard frontend/UI design",
+      "Health analytics and aggregator engine",
+      "Repository insights and trends collector"
+    ],
+    "problem_statement": "Stakeholders and maintainers have no quick visual way to assess the health of the repository, including project counts, test pass rates, coverage metrics, and contributor distributions. A central health dashboard is required.",
+    "implementation_plan": [
+      "Create a dashboard generator script `scripts/generate_dashboard.py`.",
+      "Read data from `projects_registry.json` and gather test execution results.",
+      "Build an HTML report generator that generates a modern, static dashboard with graphs.",
+      "Integrate summary cards showing total projects, overall test success rate, total lines of code, and contributor counts."
+    ],
+    "folder_structure": "python-mini-project/\n\u251c\u2500\u2500 scripts/\n\u2502   \u2514\u2500\u2500 generate_dashboard.py\n\u251c\u2500\u2500 dashboard/\n\u2502   \u251c\u2500\u2500 template.html\n\u2502   \u2514\u2500\u2500 assets/\n\u2502       \u251c\u2500\u2500 dashboard.css\n\u2502       \u2514\u2500\u2500 app.js\n\u2514\u2500\u2500 index.html (generated dashboard)",
+    "files_to_create": [
+      {
+        "path": "scripts/generate_dashboard.py",
+        "description": "Generates static HTML dashboard based on repository analytics.",
+        "code": "# Python code to aggregate stats and write HTML dashboard..."
+      }
+    ],
+    "acceptance_criteria": [
+      "Generates a modern static dashboard `index.html`.",
+      "Shows key metrics: project counts, passing tests percentage, total contributors.",
+      "Responsive layout matching dark mode specifications."
+    ],
+    "unit_tests": [
+      "Test statistics aggregator produces correct math calculations.",
+      "Verify HTML generation doesn't crash on empty registry.",
+      "Verify CSS/JS files copy correctly to target output directories."
+    ],
+    "pr_title": "feat: Build static repository health dashboard generator",
+    "pr_description": "Adds a tool to generate a visual repository dashboard detailing overall health metrics, test statuses, and contributor insights. Outputs to index.html.",
+    "reviewer_update_comment": "The health dashboard generator is ready. We now have an aggregated view of the repository health. Let's discuss hosting it via GitHub Pages."
+  },
+  {
+    "num": 4,
+    "name": "broken_project_detection_engine",
+    "title": "Broken Project Detection Engine",
+    "objective": "Automatically identify projects with missing files, import errors, or execution failures.",
+    "deliverables": [
+      "Broken project validation scanner",
+      "Automated broken project reports generator",
+      "Health scoring algorithms"
+    ],
+    "problem_statement": "Projects in the repository can break silently due to python updates, missing dependencies, or refactoring in standard libraries. We need a diagnostic tool to run check executions and detect imports, syntax errors, and missing files.",
+    "implementation_plan": [
+      "Build a diagnostic tool `scripts/detect_broken_projects.py`.",
+      "Simulate file structure verification and dry-run execution checks (e.g. AST analysis for import safety).",
+      "Generate detailed report of broken projects and assign a health score (0-100) to each project.",
+      "Incorporate scanner into CI workflow to prevent merging broken projects."
+    ],
+    "folder_structure": "python-mini-project/\n\u251c\u2500\u2500 scripts/\n\u2502   \u2514\u2500\u2500 detect_broken_projects.py\n\u2514\u2500\u2500 reports/\n    \u2514\u2500\u2500 broken_projects_report.json",
+    "files_to_create": [
+      {
+        "path": "scripts/detect_broken_projects.py",
+        "description": "Scanner checking for syntax, imports, and execution failures.",
+        "code": "# Python script using AST to inspect project imports..."
+      }
+    ],
+    "acceptance_criteria": [
+      "Scanner must detect missing entrypoints or config files.",
+      "Scanner must identify syntax errors and import errors using AST parsing without full unsafe execution.",
+      "Reports are saved to `reports/broken_projects_report.json`."
+    ],
+    "unit_tests": [
+      "Verify AST inspector catches invalid module imports.",
+      "Verify scanner scores a perfect project as 100 health.",
+      "Verify projects with critical issues are scored below 50 and flag failures."
+    ],
+    "pr_title": "feat: Implement broken project detection engine",
+    "pr_description": "Adds static verification and dry-run execution scanning for projects to check for import errors, syntax issues, and missing files. Generates JSON reports and assigns health scores.",
+    "reviewer_update_comment": "This scanning engine checks imports and syntax statically using AST. This ensures safety as we don't execute arbitrary scripts yet."
+  },
+  {
+    "num": 5,
+    "name": "automated_readme_generator",
+    "title": "Automated README Generator",
+    "objective": "Generate README files for projects missing documentation.",
+    "deliverables": [
+      "Documentation automation script",
+      "README templates based on project type",
+      "Metadata-to-documentation extractor"
+    ],
+    "problem_statement": "Writing standard README files can be tedious for developers, leading to empty or sparse project descriptions. We need an automated script to parse `metadata.json`, source files, and tests to generate a professional, standardized `README.md` automatically.",
+    "implementation_plan": [
+      "Create `scripts/generate_readme.py`.",
+      "Extract features, entry points, and tests details from the project codebase.",
+      "Fill template placeholders based on project categories (CLI, Web, Utility).",
+      "Add safety check to prevent overwriting custom documentation unless `--force` is supplied."
+    ],
+    "folder_structure": "python-mini-project/\n\u2514\u2500\u2500 scripts/\n    \u2514\u2500\u2500 generate_readme.py",
+    "files_to_create": [
+      {
+        "path": "scripts/generate_readme.py",
+        "description": "Automatically generates README.md based on project details.",
+        "code": "# Script to generate documentation..."
+      }
+    ],
+    "acceptance_criteria": [
+      "Script generates a detailed README.md matching requirements.",
+      "Existing customized READMEs are not overwritten by default.",
+      "Successfully extracts installation details from `requirements.txt` if present."
+    ],
+    "unit_tests": [
+      "Verify template variables are replaced correctly.",
+      "Verify CLI parameters (like `--force`) actuate correctly.",
+      "Test behavior when `requirements.txt` is missing."
+    ],
+    "pr_title": "feat: Add automated README generator",
+    "pr_description": "Introduces a utility to generate project READMEs from code metadata. Saves developer time and maintains repository documentation consistency.",
+    "reviewer_update_comment": "Let's review the templates used for the README generator. We can expand this with AI integration in the future."
+  },
+  {
+    "num": 6,
+    "name": "dependency_analyzer",
+    "title": "Dependency Analyzer",
+    "objective": "Analyze dependencies across all projects and detect unused packages.",
+    "deliverables": [
+      "Dependency graph generator",
+      "Unused dependency reporting tools",
+      "Version audit engine"
+    ],
+    "problem_statement": "Over time, projects accumulate unused packages in `requirements.txt` or use conflicting versions of common dependencies. We need a dependency analyzer to map package references, flag unused imports, and audit outdated/vulnerable libraries.",
+    "implementation_plan": [
+      "Write `scripts/analyze_dependencies.py`.",
+      "Parse `requirements.txt` or `pyproject.toml` and search python files for corresponding `import` statements.",
+      "Generate a dependency graph showing inter-project dependency patterns.",
+      "Report unused dependencies and identify version mismatches."
+    ],
+    "folder_structure": "python-mini-project/\n\u2514\u2500\u2500 scripts/\n    \u2514\u2500\u2500 analyze_dependencies.py",
+    "files_to_create": [
+      {
+        "path": "scripts/analyze_dependencies.py",
+        "description": "Dependency audit and graph creation tool.",
+        "code": "# Python script to audit dependencies..."
+      }
+    ],
+    "acceptance_criteria": [
+      "Finds imported modules that are not listed in requirements.",
+      "Flags libraries in requirements that are never imported.",
+      "Saves a version audit report showing version conflicts."
+    ],
+    "unit_tests": [
+      "Test import matching engine with complex multi-level imports.",
+      "Verify unused warnings trigger correctly for unimported libraries.",
+      "Verify correct matching of packaging aliases (e.g. `pyyaml` vs `import yaml`)."
+    ],
+    "pr_title": "feat: Add dependency analyzer and version audit tools",
+    "pr_description": "Adds a tool to audit repository dependencies, mapping imported python modules back to requirements lists, checking for unused requirements, and flagging version mismatches.",
+    "reviewer_update_comment": "I've handled import alias mappings for popular packages. Let me know if you encounter any edge cases with complex imports."
+  },
+  {
+    "num": 7,
+    "name": "code_quality_scanner",
+    "title": "Code Quality Scanner",
+    "objective": "Perform repository-wide PEP8, linting, and style validation.",
+    "deliverables": [
+      "Flake8 and Black integration configurations",
+      "Code quality report generator",
+      "Linter scoring metrics dashboard"
+    ],
+    "problem_statement": "Code style consistency is critical for maintaining codebases. Without automated formatting checks, code quality deteriorates. We need a quality scanner that runs code formatters/linters, scores file qualities, and formats reports.",
+    "implementation_plan": [
+      "Configure Flake8, Black, and Ruff configurations in the repo root.",
+      "Develop a wrapper script `scripts/lint_scanner.py` that executes these linters.",
+      "Parse output logs to score each project based on quality guidelines.",
+      "Integrate the results into the repository health dashboard."
+    ],
+    "folder_structure": "python-mini-project/\n\u251c\u2500\u2500 .flake8\n\u251c\u2500\u2500 pyproject.toml\n\u2514\u2500\u2500 scripts/\n    \u2514\u2500\u2500 lint_scanner.py",
+    "files_to_create": [
+      {
+        "path": "scripts/lint_scanner.py",
+        "description": "Linter runner and quality score calculation wrapper.",
+        "code": "# Quality scanner orchestration script..."
+      }
+    ],
+    "acceptance_criteria": [
+      "All projects are scanned for linting errors.",
+      "Outputs unified code quality rating (e.g., A/B/C/D) per project.",
+      "Build fails if formatting violates Black style rules."
+    ],
+    "unit_tests": [
+      "Verify ruff/flake8 logs are parsed correctly.",
+      "Verify that score calculations weight errors correctly.",
+      "Ensure linter ignores virtual environments or standard libraries."
+    ],
+    "pr_title": "feat: Standardize code quality checking and lint scoring",
+    "pr_description": "Establishes linter configurations, implements formatting verification, and introduces a script to generate quality health reports for each sub-project.",
+    "reviewer_update_comment": "The ruff / flake8 rules are configured in `.flake8` and `pyproject.toml`. Please make sure your IDE auto-formats on save."
+  },
+  {
+    "num": 8,
+    "name": "automated_testing_framework",
+    "title": "Automated Testing Framework",
+    "objective": "Create unified testing structure for all projects.",
+    "deliverables": [
+      "Unified Pytest integration runner",
+      "Test templates for projects",
+      "Code coverage aggregator"
+    ],
+    "problem_statement": "Currently, testing is ad-hoc, with some projects using unittest, others using pytest, and some having no tests at all. We need a unified runner to invoke tests across all projects, collect coverages, and aggregate results.",
+    "implementation_plan": [
+      "Create a root `pytest.ini` configuring standard test discovery paths.",
+      "Write `scripts/run_tests.py` that discovers tests in each project and executes pytest.",
+      "Configure `pytest-cov` to measure code coverage per project.",
+      "Export test results and coverage metrics for use in the dashboard."
+    ],
+    "folder_structure": "python-mini-project/\n\u251c\u2500\u2500 pytest.ini\n\u251c\u2500\u2500 standards/\n\u2502   \u2514\u2500\u2500 test_template.py\n\u2514\u2500\u2500 scripts/\n    \u2514\u2500\u2500 run_tests.py",
+    "files_to_create": [
+      {
+        "path": "scripts/run_tests.py",
+        "description": "Discovers and runs test suites across projects and reports metrics.",
+        "code": "# Pytest aggregation runner logic..."
+      }
+    ],
+    "acceptance_criteria": [
+      "Unified test execution across all projects via one command.",
+      "Generation of coverage reports in XML and HTML.",
+      "CI integration to verify tests pass on all PRs."
+    ],
+    "unit_tests": [
+      "Verify correct execution of passing pytest test suites.",
+      "Verify coverage reports contain accurate lines-of-code coverage statistics.",
+      "Verify missing tests in a project are flagged appropriately."
+    ],
+    "pr_title": "feat: Implement repository-wide automated testing framework",
+    "pr_description": "Configures Pytest configuration globally, builds a pytest test aggregator, and integrates code coverage reporting for the dashboard.",
+    "reviewer_update_comment": "The test framework is set. Run `python scripts/run_tests.py` to test all projects in parallel!"
+  },
+  {
+    "num": 9,
+    "name": "project_execution_sandbox",
+    "title": "Project Execution Sandbox",
+    "objective": "Safely execute projects for validation and demonstrations.",
+    "deliverables": [
+      "Isolated sandbox execution environment",
+      "Resource and security isolation controls",
+      "Runtime monitoring and timeout manager"
+    ],
+    "problem_statement": "Running user-submitted Python projects locally poses security and stability risks, such as infinite loops, high CPU usage, or unauthorized filesystem access. We need a sandbox runner to execute projects safely.",
+    "implementation_plan": [
+      "Create a sandbox module `scripts/sandbox_runner.py`.",
+      "Use subprocesses with limited resource boundaries (timeout, memory, directory access).",
+      "Implement a virtual environment manager to automatically build isolated virtualenvs for execution.",
+      "Record standard output, error, exit codes, and runtime durations."
+    ],
+    "folder_structure": "python-mini-project/\n\u2514\u2500\u2500 scripts/\n    \u2514\u2500\u2500 sandbox_runner.py",
+    "files_to_create": [
+      {
+        "path": "scripts/sandbox_runner.py",
+        "description": "Safely manages subprocess executions with limits and environments.",
+        "code": "# Sandboxed execution engine with timeouts..."
+      }
+    ],
+    "acceptance_criteria": [
+      "Execution is terminated if it exceeds a specified timeout (e.g. 5 seconds).",
+      "Dependencies are isolated within their own virtual environments.",
+      "Outputs (stdout, stderr, runtime) are captured in a structured format."
+    ],
+    "unit_tests": [
+      "Test sandbox terminates infinite loops successfully.",
+      "Test environment isolation by running script with custom dependencies.",
+      "Verify stdout/stderr capture works correctly."
+    ],
+    "pr_title": "feat: Create safe project execution sandbox",
+    "pr_description": "Introduces a sandbox manager that sets limits on timeouts, environment isolation, and captures execution metrics safely.",
+    "reviewer_update_comment": "This execution sandbox is key for project demos in the web interface. Review the sandbox constraints in `scripts/sandbox_runner.py`."
+  },
+  {
+    "num": 10,
+    "name": "contributor_analytics_platform",
+    "title": "Contributor Analytics Platform",
+    "objective": "Track contributor activity, commits, PRs, and project contributions.",
+    "deliverables": [
+      "Contributor leaderboard aggregator",
+      "Git history analytics extractor",
+      "Contribution activity report generator"
+    ],
+    "problem_statement": "Healthy open-source repositories require active communities. Currently, we lack an automated way to highlight contributor efforts, map git commits to specific projects, and reward active developers.",
+    "implementation_plan": [
+      "Create `scripts/analyze_contributors.py`.",
+      "Use `GitPython` or shell out to `git log` to extract contributor data.",
+      "Associate commit directories with specific sub-projects to calculate project-level contributions.",
+      "Aggregate commits, lines added/removed, and active months, generating a scoreboard."
+    ],
+    "folder_structure": "python-mini-project/\n\u2514\u2500\u2500 scripts/\n    \u2514\u2500\u2500 analyze_contributors.py",
+    "files_to_create": [
+      {
+        "path": "scripts/analyze_contributors.py",
+        "description": "Queries git logs to calculate contributor stats per project.",
+        "code": "# Git log analysis script..."
+      }
+    ],
+    "acceptance_criteria": [
+      "Correctly parses git history for authors and commit counts.",
+      "Correctly attributes edits to specific project folders.",
+      "Generates a contributors JSON report sorted by activity score."
+    ],
+    "unit_tests": [
+      "Verify git log line parsing logic.",
+      "Verify correct folder mapping for commit details.",
+      "Test scoreboard sorting with mock data inputs."
+    ],
+    "pr_title": "feat: Add git contributor analytics engine",
+    "pr_description": "Establishes a contributor analytics utility that maps git commit records to project folders and counts contributions. This powers our community leaderboard.",
+    "reviewer_update_comment": "I've added support for custom mailmaps to handle authors with multiple email addresses. Take a look!"
+  },
+  {
+    "num": 11,
+    "name": "search_discovery_engine",
+    "title": "Search & Discovery Engine",
+    "objective": "Enable users to search projects using tags, categories, and keywords.",
+    "deliverables": [
+      "Unified Search API and class",
+      "Tag indexing engine",
+      "Filtering and sorting middleware"
+    ],
+    "problem_statement": "As the project registry grows to dozens or hundreds of projects, finding specific types of projects (e.g. 'game', 'data science') becomes difficult. We need a search and discovery engine for fast lookups.",
+    "implementation_plan": [
+      "Write `scripts/search_engine.py` with indexing capabilities.",
+      "Parse `projects_registry.json` and build an inverted index of keywords, tags, and titles.",
+      "Implement scoring (e.g. BM25 or basic term frequency matching) for fuzzy text search.",
+      "Support advanced filters (difficulty level, tags, dependency count)."
+    ],
+    "folder_structure": "python-mini-project/\n\u2514\u2500\u2500 scripts/\n    \u2514\u2500\u2500 search_engine.py",
+    "files_to_create": [
+      {
+        "path": "scripts/search_engine.py",
+        "description": "Fuzzy keyword indexing and tag filtering search engine.",
+        "code": "# Fuzzy search index matching logic..."
+      }
+    ],
+    "acceptance_criteria": [
+      "Fast keyword matching over titles, description, and tags.",
+      "Support filtering by multiple tags (AND/OR logic).",
+      "Sorting results by project name, difficulty, or health rating."
+    ],
+    "unit_tests": [
+      "Verify search returns relevant matches for partial queries.",
+      "Test filters with combinations of tags and difficulty levels.",
+      "Verify index updates correctly when projects are modified."
+    ],
+    "pr_title": "feat: Build search and discovery engine",
+    "pr_description": "Implements a backend indexing and search engine that supports fuzzy text queries and metadata filters over all registered projects.",
+    "reviewer_update_comment": "This indexer will run at build-time to keep search fast. Let me know if you think we should support regex searches."
+  },
+  {
+    "num": 12,
+    "name": "project_recommendation_engine",
+    "title": "Project Recommendation Engine",
+    "objective": "Recommend projects based on user skill level and interests.",
+    "deliverables": [
+      "Personalized recommendation engine class",
+      "User skill profile analyzer",
+      "Learning progression recommendation pathfinder"
+    ],
+    "problem_statement": "New users visiting the repository often struggle to find the right project to start with based on their current skills or learning goals. We need a recommendation engine that suggests projects dynamically.",
+    "implementation_plan": [
+      "Create `scripts/recommendation_engine.py`.",
+      "Define a profile structure modeling user interests (tags) and skill level (difficulty).",
+      "Implement a content-based filtering algorithm that matches project profiles with user profiles.",
+      "Create a recommendation flow recommending related projects upon completing a current project."
+    ],
+    "folder_structure": "python-mini-project/\n\u2514\u2500\u2500 scripts/\n    \u2514\u2500\u2500 recommendation_engine.py",
+    "files_to_create": [
+      {
+        "path": "scripts/recommendation_engine.py",
+        "description": "Content-based project recommender system.",
+        "code": "# Similarity matching recommendation rules..."
+      }
+    ],
+    "acceptance_criteria": [
+      "Recommends relevant projects given a user profile input.",
+      "Never suggests projects with difficulty higher than user profile limits.",
+      "Ensures recommendation results are diverse and cover multiple tags."
+    ],
+    "unit_tests": [
+      "Test that intermediate user gets matching intermediate projects.",
+      "Verify recommendation diversity logic doesn't return duplicates.",
+      "Verify recommendation system handles users with no registered interests."
+    ],
+    "pr_title": "feat: Implement project recommendation engine",
+    "pr_description": "Adds a recommendation utility that matches users' skill level and topic preferences to suitable project cards, building progressive learning pathways.",
+    "reviewer_update_comment": "The similarity scores are normalized between 0.0 and 1.0. Check `scripts/recommendation_engine.py` for details."
+  },
+  {
+    "num": 13,
+    "name": "difficulty_classification_system",
+    "title": "Difficulty Classification System",
+    "objective": "Automatically classify projects as Beginner, Intermediate, or Advanced.",
+    "deliverables": [
+      "Code complexity assessment model",
+      "Automatic difficulty scoring engine",
+      "Learning progression sequencer"
+    ],
+    "problem_statement": "Manually classifying project difficulty is subjective and inconsistent across contributors. We need a system that calculates difficulty scores based on code features (LOC, Cyclomatic Complexity, dependency count, library usage).",
+    "implementation_plan": [
+      "Develop `scripts/classify_difficulty.py`.",
+      "Integrate `radon` or `mccabe` to compute cyclomatic complexity.",
+      "Calculate features: lines of code, nesting depth, number of functions/classes, imports.",
+      "Write classifier thresholds to bin projects into Beginner, Intermediate, and Advanced categories."
+    ],
+    "folder_structure": "python-mini-project/\n\u2514\u2500\u2500 scripts/\n    \u2514\u2500\u2500 classify_difficulty.py",
+    "files_to_create": [
+      {
+        "path": "scripts/classify_difficulty.py",
+        "description": "Calculates complexity metrics and assigns difficulty classifications.",
+        "code": "# Code complexity analysis and grading..."
+      }
+    ],
+    "acceptance_criteria": [
+      "Classifies difficulty without manual input.",
+      "Accounts for code complexity, nesting, and library imports.",
+      "Saves calculated difficulties directly into project registries."
+    ],
+    "unit_tests": [
+      "Test simple code scripts classify as Beginner.",
+      "Test scripts with high nesting/recursion levels get tagged Intermediate/Advanced.",
+      "Verify threshold logic is stable across minor code format changes."
+    ],
+    "pr_title": "feat: Add automatic project difficulty classifier",
+    "pr_description": "Introduces code complexity analysis using cyclomatic complexity and code length metrics to automatically assign difficulty classifications to projects.",
+    "reviewer_update_comment": "We use radon metrics for classifying. If a project uses complex libraries like socket or asyncio, it defaults to Intermediate/Advanced."
+  },
+  {
+    "num": 14,
+    "name": "web_app_modernization",
+    "title": "Web App Modernization",
+    "objective": "Upgrade UI/UX of the web app with modern responsive design.",
+    "deliverables": [
+      "Responsive layout framework",
+      "CSS Dark Mode / Light Mode theme engine",
+      "Accessibility (a11y) improvements implementation"
+    ],
+    "problem_statement": "The existing dashboard is simple, non-responsive, and lacks premium styling. We need to upgrade the dashboard UI to be modern, fast, and feature responsive layouts, dark/light theme options, and full accessibility compliance.",
+    "implementation_plan": [
+      "Redesign the dashboard UI with a premium glassmorphic or sleek dark layout.",
+      "Integrate HSL color systems and custom variables in CSS.",
+      "Create responsive CSS grid and flexbox layouts.",
+      "Implement light/dark mode toggling and verify a11y contrast ratios."
+    ],
+    "folder_structure": "python-mini-project/\n\u251c\u2500\u2500 dashboard/\n\u2502   \u251c\u2500\u2500 index.html\n\u2502   \u2514\u2500\u2500 src/\n\u2502       \u251c\u2500\u2500 styles.css\n\u2502       \u2514\u2500\u2500 app.js\n\u2514\u2500\u2500 scripts/\n    \u2514\u2500\u2500 build_ui.py",
+    "files_to_create": [
+      {
+        "path": "dashboard/src/styles.css",
+        "description": "Modern CSS rules including responsive grids, gradients, and themes.",
+        "code": "/* Modern premium web app styling... */"
+      }
+    ],
+    "acceptance_criteria": [
+      "Dashboard is fully responsive from mobile screens to 4k monitors.",
+      "Working light/dark theme switch that persists preferences.",
+      "Strict adherence to WCAG AA contrast standards."
+    ],
+    "unit_tests": [
+      "Verify theme toggling sets correct classes and storage keys.",
+      "Verify all navigation components have correct ARIA accessibility attributes.",
+      "Verify build script outputs resources to correct public directories."
+    ],
+    "pr_title": "feat: Modernize web dashboard UI/UX with responsive dark mode",
+    "pr_description": "Upgrades the static dashboard code with premium CSS variables, HSL grids, a persistent theme engine, and accessibility enhancements.",
+    "reviewer_update_comment": "I used vanilla HSL colors. Let's look at the dark mode styling on the search cards!"
+  },
+  {
+    "num": 15,
+    "name": "project_preview_system",
+    "title": "Project Preview System",
+    "objective": "Provide screenshots, demos, and previews for projects.",
+    "deliverables": [
+      "Interactive preview cards layout",
+      "Project demo integration templates",
+      "Media asset uploading and indexing support"
+    ],
+    "problem_statement": "Users cannot see what a project does or looks like without running it locally. We need a system to showcase screenshots, diagrams, and terminal recorded terminal sessions (e.g. asciinema) in the project cards.",
+    "implementation_plan": [
+      "Define standards for project asset storage (e.g., `projects/<name>/assets/`).",
+      "Update registry to catalogue previews and paths.",
+      "Build UI media players/carousels to display images, GIFs, or terminal recordings.",
+      "Integrate terminal recording files into the visual deck."
+    ],
+    "folder_structure": "python-mini-project/\n\u2514\u2500\u2500 standards/\n    \u2514\u2500\u2500 preview_assets_schema.md",
+    "files_to_create": [
+      {
+        "path": "standards/preview_assets_schema.md",
+        "description": "Standard rules specifying screenshot sizes, image ratios, and formats.",
+        "code": "# Preview Assets Standards\nAll images should be inside the project's assets/ directory..."
+      }
+    ],
+    "acceptance_criteria": [
+      "Registry indexes screenshot paths automatically.",
+      "Dashboard renders image galleries if screenshots exist.",
+      "Terminal recordings display correctly in sandboxed terminals."
+    ],
+    "unit_tests": [
+      "Verify asset crawling registers files of correct extensions.",
+      "Verify empty folder handling when searching screenshots.",
+      "Verify asset path translations for web hosting paths."
+    ],
+    "pr_title": "feat: Add media preview system and gallery cards",
+    "pr_description": "Enables asset indexing for screenshots and terminal recordings. Updates project cards on the dashboard to render carousel visual displays.",
+    "reviewer_update_comment": "Verify that your project assets folder contains images scaled to standard aspect ratios (16:9)."
+  },
+  {
+    "num": 16,
+    "name": "security_audit_framework",
+    "title": "Security Audit Framework",
+    "objective": "Detect unsafe code patterns and vulnerabilities.",
+    "deliverables": [
+      "Bandit tool configuration and wrapper script",
+      "Repository vulnerability reports",
+      "Unsafe import scanner rules"
+    ],
+    "problem_statement": "Python mini-projects may unintentionally include insecure code practices (such as `eval()`, hardcoded secrets, or insecure random modules). We need a security checker that audits the code prior to registering or executing.",
+    "implementation_plan": [
+      "Integrate `bandit` as a security code audit engine.",
+      "Write `scripts/security_audit.py` to run audits per project.",
+      "Build custom ast checkers to intercept calls to unsafe functions (e.g. `subprocess.shell=True`).",
+      "Generate structured JSON safety reports."
+    ],
+    "folder_structure": "python-mini-project/\n\u251c\u2500\u2500 .bandit\n\u2514\u2500\u2500 scripts/\n    \u2514\u2500\u2500 security_audit.py",
+    "files_to_create": [
+      {
+        "path": "scripts/security_audit.py",
+        "description": "Runs security sweeps, audits codebases, and writes vuln warnings.",
+        "code": "# Python script wrapping bandit and custom checks..."
+      }
+    ],
+    "acceptance_criteria": [
+      "Audits code for common vulnerabilities (eval, exec, hardcoded credentials).",
+      "Flags insecure dependencies or library version vulnerabilities.",
+      "Outputs severity flags (low, medium, high) and aborts execution on high vulnerabilities."
+    ],
+    "unit_tests": [
+      "Test that files containing `eval()` trigger high severity flags.",
+      "Test that files with hardcoded API keys trigger warnings.",
+      "Verify clean files receive a secure rating."
+    ],
+    "pr_title": "feat: Integrate security audit and vulnerability framework",
+    "pr_description": "Adds Bandit configurations and custom AST scanners to check projects for insecure code patterns like eval or shell injection vectors before inclusion.",
+    "reviewer_update_comment": "This scanning framework runs during the project registry generation. Any project with High-level security bugs will be blocked."
+  },
+  {
+    "num": 17,
+    "name": "performance_benchmark_suite",
+    "title": "Performance Benchmark Suite",
+    "objective": "Benchmark execution performance of projects.",
+    "deliverables": [
+      "Project benchmark runner engine",
+      "Execution speed and resource utilization reports",
+      "Code optimization suggestion generator"
+    ],
+    "problem_statement": "Performance problems (like excessive memory use or slow runtimes) are difficult to spot during manual reviews. We need an automated benchmark suite to track CPU time, memory footprints, and resource usage statistics.",
+    "implementation_plan": [
+      "Write `scripts/benchmark_runner.py`.",
+      "Implement measurement decorators using standard time/memory tools (e.g., `psutil` or `resource`).",
+      "Run benchmark scripts multiple times to compile average and peak metrics.",
+      "Generate optimization feedback if resource utilization exceeds thresholds."
+    ],
+    "folder_structure": "python-mini-project/\n\u2514\u2500\u2500 scripts/\n    \u2514\u2500\u2500 benchmark_runner.py",
+    "files_to_create": [
+      {
+        "path": "scripts/benchmark_runner.py",
+        "description": "Records CPU, memory, and performance profile data during execution.",
+        "code": "# Benchmarking and profiling metrics runner..."
+      }
+    ],
+    "acceptance_criteria": [
+      "Captures peak memory usage in megabytes.",
+      "Measures runtime execution speed in milliseconds.",
+      "Generates performance metrics reports in JSON."
+    ],
+    "unit_tests": [
+      "Verify speed benchmark functions report stable numbers.",
+      "Verify memory logger detects memory allocations accurately.",
+      "Test timeout behavior on slow-running benchmark loops."
+    ],
+    "pr_title": "feat: Add resource benchmarking and execution profiling suite",
+    "pr_description": "Adds a profiling tool using psutil to capture execution metrics like CPU time, peak memory usage, and execution variance for project runs.",
+    "reviewer_update_comment": "Ensure that your code is benchmarked against common inputs. Let me know if we need to mock file inputs during benchmarking."
+  },
+  {
+    "num": 18,
+    "name": "project_packaging_framework",
+    "title": "Project Packaging Framework",
+    "objective": "Allow projects to be distributed as installable packages.",
+    "deliverables": [
+      "Project packaging setup templates",
+      "Dynamic build scripts generator",
+      "Distribution pipeline integration"
+    ],
+    "problem_statement": "Currently, projects are only runnable inside the source directory. To let users import these projects elsewhere as reusable libraries, we need a standard packaging pipeline to generate wheel/sdist packages.",
+    "implementation_plan": [
+      "Establish packaging blueprints using `pyproject.toml` templates.",
+      "Develop a script `scripts/build_package.py` to auto-populate metadata and configuration settings.",
+      "Use `build` and `setuptools` to package individual directories dynamically.",
+      "Support generating wheels locally under `dist/`."
+    ],
+    "folder_structure": "python-mini-project/\n\u251c\u2500\u2500 standards/\n\u2502   \u2514\u2500\u2500 pyproject_template.toml\n\u2514\u2500\u2500 scripts/\n    \u2514\u2500\u2500 build_package.py",
+    "files_to_create": [
+      {
+        "path": "scripts/build_package.py",
+        "description": "Script to compile sub-projects into standard Python wheel packages.",
+        "code": "# Python packaging and distribution builder..."
+      }
+    ],
+    "acceptance_criteria": [
+      "Successful creation of `.whl` and `.tar.gz` packages.",
+      "Packages correctly declare name, version, and dependencies.",
+      "Packaged projects can be imported standardly via `pip install`."
+    ],
+    "unit_tests": [
+      "Test build scripts compile standard package outputs without failing.",
+      "Verify dependencies are correctly populated inside PKG-INFO metadata files.",
+      "Verify packaging setup rejects invalid directory schemas."
+    ],
+    "pr_title": "feat: Build distribution and packaging framework",
+    "pr_description": "Establishes python-packaging configurations, allowing sub-projects to build wheel formats using template-driven setuptools workflows.",
+    "reviewer_update_comment": "Check the wheels created in the `dist/` directory. They are fully importable!"
+  },
+  {
+    "num": 19,
+    "name": "learning_path_generator",
+    "title": "Learning Path Generator",
+    "objective": "Generate personalized learning journeys using repository projects.",
+    "deliverables": [
+      "Personalized learning roadmap builder",
+      "Topic/skill progression analyzer",
+      "Project sequencing graph"
+    ],
+    "problem_statement": "Users wanting to learn Python or web development have to choose projects blindly. We need a pathfinder tool to sequence projects logically (e.g., variables -> loops -> databases) so they form educational roadmaps.",
+    "implementation_plan": [
+      "Build `scripts/learning_paths.py`.",
+      "Model skill prerequisites and topic mappings for projects.",
+      "Create a Directed Acyclic Graph (DAG) of project progressions.",
+      "Generate customized learning pathways (e.g., 'Web Dev Track', 'Data Analyst Track')."
+    ],
+    "folder_structure": "python-mini-project/\n\u2514\u2500\u2500 scripts/\n    \u2514\u2500\u2500 learning_paths.py",
+    "files_to_create": [
+      {
+        "path": "scripts/learning_paths.py",
+        "description": "Generates education progressions and maps learning graphs.",
+        "code": "# Graph traversal and progression sequencing logic..."
+      }
+    ],
+    "acceptance_criteria": [
+      "Generates multi-step pathways mapped by skills.",
+      "Inserts prerequisite projects before more advanced steps.",
+      "Calculates total estimated learning times."
+    ],
+    "unit_tests": [
+      "Verify DAG scheduler detects dependency loops correctly.",
+      "Test pathgenerator prints correct paths based on selected categories.",
+      "Verify behavior when requested topics contain zero registered projects."
+    ],
+    "pr_title": "feat: Add learning path generator and sequencing graph",
+    "pr_description": "Adds a learning path algorithm that organizes projects into educational sequences based on prerequisite skills and topics.",
+    "reviewer_update_comment": "This generator uses a topological sort to make sure beginner projects come before intermediate ones. Take a look!"
+  },
+  {
+    "num": 20,
+    "name": "hub_2.0",
+    "title": "Python Mini Project Hub 2.0",
+    "objective": "Transform the repository into a complete project discovery and learning platform.",
+    "deliverables": [
+      "Unified marketplace dashboard interface",
+      "Aggregated analytics center dashboard",
+      "Interactive contributor ecosystem tools",
+      "Integrate execution, search, recommendations and learning paths"
+    ],
+    "problem_statement": "The repository is currently a collection of command-line scripts and tools. To complete the Hub, we need to unify the dashboard, search engines, sandboxes, recommendations, and learning paths into a single interface.",
+    "implementation_plan": [
+      "Refactor dashboard templates to support interactive client-side operations.",
+      "Integrate the search, recommendation, and learning path algorithms into client-side JS.",
+      "Create code view modals showing project source code with syntax highlighting.",
+      "Provide sandboxed execution previews in the UI using mock API endpoints."
+    ],
+    "folder_structure": "python-mini-project/\n\u251c\u2500\u2500 dashboard/\n\u2502   \u251c\u2500\u2500 index.html\n\u2502   \u251c\u2500\u2500 src/\n\u2502   \u2502   \u251c\u2500\u2500 app.js\n\u2502   \u2502   \u251c\u2500\u2500 search.js\n\u2502   \u2502   \u2514\u2500\u2500 sandbox.js\n\u2502   \u2514\u2500\u2500 api/ (Mock REST endpoints)\n\u2514\u2500\u2500 README.md",
+    "files_to_create": [
+      {
+        "path": "dashboard/src/app.js",
+        "description": "Client-side controller coordinating rendering, search, and interactions.",
+        "code": "// Primary hub controller logic..."
+      }
+    ],
+    "acceptance_criteria": [
+      "All components (search, recommendations, sandbox, analytics) function in UI.",
+      "Smooth UX animations and responsiveness.",
+      "Deployment-ready package that runs without external database requirements."
+    ],
+    "unit_tests": [
+      "Verify integration flows of recommendation UI cards.",
+      "Verify sandbox outputs route correctly to display screens.",
+      "Test dashboard loading times and file sizes."
+    ],
+    "pr_title": "feat: Launch python mini project hub 2.0 unified portal",
+    "pr_description": "This final phase integrates search, execution previews, recommendations, and learning path visualizers into a single, cohesive, premium web app dashboard.",
+    "reviewer_update_comment": "Welcome to Python Mini Project Hub 2.0! All previous phases are now unified under this sleek dashboard. Let's launch it!"
+  }
+]
